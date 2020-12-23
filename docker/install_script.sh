@@ -12,6 +12,15 @@ if [ "$s" != "0" ]; then
 fi
 mkdir -p public/var
 
+# Avoid Composer/Flex asking interactive questions that cannot be automated by adding files to git
+git init
+git add config/.
+git add templates/.
+git add assets/.
+git add *.js
+git add package.json
+composer recipes:install --force
+
 if [ "${INSTALL_DATABASE}" == "1" ]; then 
     export DATABASE_URL=${DATABASE_PLATFORM}://${DATABASE_USER}:${DATABASE_PASSWORD}@${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}?serverVersion=${DATABASE_VERSION}
 
