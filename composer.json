@@ -1,0 +1,13 @@
+{
+    "name": "ibexa/docker",
+    "type": "library",
+    "license": "GPL-2.0-only",
+    "description": "Docker files for Ibexa DXP",
+    "minimum-stability": "stable",
+    "require": {},
+    "extra": {
+        "branch-alias": {
+            "dev-main": "1.0.x-dev"
+        }
+    }
+}
