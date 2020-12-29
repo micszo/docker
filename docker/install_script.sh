@@ -19,6 +19,8 @@ git add templates/.
 git add assets/.
 git add *.js
 git add package.json
+# TMP to avoid specyfing all files
+git add .
 composer recipes:install --force
 
 if [ "${INSTALL_DATABASE}" == "1" ]; then 
