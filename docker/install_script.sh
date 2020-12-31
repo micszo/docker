@@ -23,6 +23,10 @@ git add package.json
 git add .
 composer recipes:install --force
 
+# Reinstall Ibexa recipes
+PROJECT_VARIANT=$(composer info -D -N | grep -E "ibexa/content|ibexa/oss|ibexa/experience|ibexa/commerce")
+composer recipes:install ${PROJECT_VARIANT} --force
+
 if [ "${INSTALL_DATABASE}" == "1" ]; then 
     export DATABASE_URL=${DATABASE_PLATFORM}://${DATABASE_USER}:${DATABASE_PASSWORD}@${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}?serverVersion=${DATABASE_VERSION}
 
