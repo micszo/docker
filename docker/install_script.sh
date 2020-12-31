@@ -23,6 +23,9 @@ git add package.json
 git add .
 composer recipes:install --force
 
+# add new files to git
+git add .
+
 # Reinstall Ibexa recipes
 PROJECT_VARIANT=$(composer info -D -N | grep -E "ibexa/content|ibexa/oss|ibexa/experience|ibexa/commerce")
 composer recipes:install ${PROJECT_VARIANT} --force
