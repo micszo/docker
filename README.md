@@ -1,55 +1,57 @@
 # Docker blueprints
 
-Unsupported docker building blocks used for some of our automated functional testing infrastructure at Ibexa, feel free to
-copy it for own use or look to it for some recommended settings.
+This package contains unsupported docker building blocks used for some of automated functional testing infrastructure at [Ibexa](https://ibexa.co).
+Feel free to copy it for own use or look to it for some recommended settings.
 
-**NOTE**: If you are just looking to get easily up and running and developing with Ibexa DXP, rather look towards
-community supported [eZ Launchpad](https://ezsystems.github.io/launchpad/) which is tailored for Project Development use cases. _If not, be
+**NOTE**: If you are just looking to get easily up and running and developing with Ibexa DXP,
+see community-supported [eZ Launchpad](https://ezsystems.github.io/launchpad/) which is tailored for project development use cases.
+_If not, be
 aware of the following limitations:_
 
-> **WARNING, made mainly for automation:** The tools within this directory are meant for use for test automation, QA,
-Support and demo use cases. And with time as a blueprint for how to best configure your own setup. You are free to use
-and adopt this for your needs, and we more than welcome contributions to improve it.
+> **WARNING, made mainly for automation:** The tools within this directory are meant for use in test automation, QA,
+Support and demo use cases, and with time as a blueprint for how to best configure your own setup. You are free to use
+and adopt them for your needs, and we more than welcome contributions to improve it.
 
 > **WARNING, low performance on MacOS and Windows:** For reasons mentioned above, these tools are not
-optimized for use as development environment with Mac or Windows, and are affected by known I/O performance issues caused
-by Docker for Mac/Windows use of shared folders. This is a know issue and nothing we intend to add complexity to workaround here.
+optimized for use as development environment with MacOS or Windows, and are affected by known I/O performance issues caused
+by Docker for MacOS/Windows use of shared folders. This is a known issue and we don't intend to add complexity to work around it.
 
 ## Overview
 
 This setup currently requires Docker Compose 1.14 and Docker 17.06 or higher. Defaults are set in `.env`, and
-files to ignore are set in `.dockerignore`. By default `.env` specifies that dev setup is used.
+files to ignore are set in `.dockerignore`. By default, `.env` specifies that the dev setup is used.
 
-_**NB:** For this and other reasons all docker-compose commands **must** be executed from root of your project directory._
+**Note:** For this and other reasons all docker-compose commands **must** be executed from root of your project directory.
 
 #### Before you begin: Install Docker & Docker-Compose
 
-Before jumping into steps below, make sure you have recent versions of [Docker & Docker-Compose](https://www.docker.com/)
+Before going through the steps below, make sure you have recent versions of [Docker and Docker Compose](https://www.docker.com/)
 installed on your machine.
 
-*For Windows you'll also need to [install bash](https://msdn.microsoft.com/en-us/commandline/wsl/about), or adapt instructions below for Windows command line where needed.*
+*For Windows you also need to [install bash](https://msdn.microsoft.com/en-us/commandline/wsl/about), or adapt instructions below for Windows command line where needed.*
 
 
 #### Concept: Docker Compose "Building blocks" for Ibexa DXP
 
 The current Docker Compose files are made to be mixed and matched together for QA/Support use cases. Currently available:
-- base-prod.yml _(required, always needs to be first, contains: db, web and app container)_
-- base-dev.yml _(alternative to `base-prod.yml`, same applies here if used)_
-- create-dataset.yml _(optional, to be used together with base-prod.yml in order to set up db and vardir)_
-- demo.yml _(optional, to be used together with base-prod.yml in order to set up db and vardir)_
-- dfs.yml _(optional, adds DFS cluster handler. Note that you need to run the migrate script manually, see below)_
-- blackfire.yml _(optional, adds blackfire service and lets you trigger profiling against the setup)_
-- redis.yml _(optional, adds redis service and appends config to app)_
-- redis-session.yml _(optional, stores sessions in a separate redis instance)_
-- varnish.yml _(optional, adds varnish service and appends config to app)_
-- solr.yml _(optional, add solr service and configure app for it)_
-- db-postgresql.yml _(optional, switches the DB engine to PostgreSQL - experimental)_
-- selenium.yml _(optional, always needs to be last, adds selenium service and appends config to app)_
-- chromium.yml _(alternative to `selenium.yml`, adds headless Chrome service, same applies here if used. Experimental)_
-- multihost.yml _(optional, adds multihost config to app container network)_
 
+- `base-prod.yml` (required, always needs to be first, contains: db, web and app container)
+- `base-dev.yml` (alternative to `base-prod.yml`, same applies here if used)
+- `create-dataset.yml` (optional, to be used together with base-prod.yml in order to set up db and vardir)
+- `demo.yml` (optional, to be used together with base-prod.yml in order to set up db and vardir)
+- `dfs.yml` (optional, adds DFS cluster handler. Note that you need to run the migrate script manually, see below)
+- `blackfire.yml` (optional, adds a Blackfire service and lets you trigger profiling against the setup)
+- `redis.yml` (optional, adds a Redis service and appends config to app)
+- `redis-session.yml` (optional, stores sessions in a separate Redis instance)
+- `varnish.yml` (optional, adds a Varnish service and appends config to app)
+- `solr.yml` (optional, add a Solr service and configure app for it)
+- `db-postgresql.yml` (optional, switches the database engine to PostgreSQL - experimental)
+- `selenium.yml` (optional, always needs to be last, adds a Selenium service and appends config to app)
+- `chromium.yml` (alternative to `selenium.yml`, adds headless Chrome service, same applies here if used. Experimental)
+- `multihost.yml` (optional, adds multihost config to app container network)
 
-These can be used with `-f` argument on docker-compose, like:
+You can use these file with the `-f` argument on docker-compose, like:
+
 ```bash
 docker-compose -f doc/docker/base-prod.yml -f doc/docker/create-dataset.yml -f doc/docker/demo.yml -f doc/docker/redis.yml up -d --force-recreate
 ```
@@ -62,14 +64,14 @@ However below environment variable `COMPOSE_FILE` is used instead since this is 
 
 ### Demo "image" use
 
-Using this approach, everything will run in containers and volumes. This means that if you for instance upload a image
-using the Ibexa DXP backend, that image will land in a volume, not somewhere below public/var/ in your project directory.
+Using this approach, everything runs in containers and volumes. This means that if you for instance upload a image
+using the Ibexa DXP backend, that image ends up in a volume, and not below `public/var/` in your project directory.
 
-From root of your projects clone of this distribution, [setup composer auth.json](#composer) and execute the following:
+From the root of your project's clone of this distribution, [set up composer auth.json](#composer) and execute the following:
 ```sh
 export COMPOSE_FILE=doc/docker/base-prod.yml:doc/docker/create-dataset.yml:doc/docker/demo.yml
 
-# Optional step if you'd like to use blackfire with the setup, change <id> and <token> with your own values
+# Optional step if you want to use Blackfire with the setup, change <id> and <token> with your own values
 #export COMPOSE_FILE=doc/docker/base-prod.yml:doc/docker/create-dataset.yml:doc/docker/demo.yml:doc/docker/blackfire.yml BLACKFIRE_SERVER_ID=<id> BLACKFIRE_SERVER_TOKEN=<token>
 
 # First time: Install setup, and generate database dump:
@@ -85,17 +87,18 @@ docker-compose build dataset-vardir dataset-dbdump
 docker-compose up -d --force-recreate
 ```
 
-After some 5-10 seconds you should be able to browse the site on `localhost:8080` and the backend on `localhost:8080/admin`.
+After about 5-10 seconds you should be able to browse the site on `localhost:8080` and the backend on `localhost:8080/admin`.
 
 ### Development "mount" use
 
-Using this approach, your project directory will be bind mounted into the nginx and php containers. So if you change a
-php file in for instance src/, that change will kick in automatically.
+Whe you use this approach, your project directory is bind-mounted into the Nginx and PGP containers.
+If you change a PHP file in, for instance `src`, that change is applied in automatically.
 
-Warning: *Dev setup works a lot faster on Linux then on Windows/Mac where Docker uses virtual machines using shared folders
+Warning: *Dev setup works a lot faster on Linux then on Windows/Mac where Docker uses virtual machines with shared folders
 by default under the hood, which leads to much slower IO performance.*
 
-From root of your projects clone of this distribution, [setup composer auth.json](#composer) and execute the following:
+From the root of your project's clone of this distribution, [set up composer auth.json](#composer) and execute the following:
+
 ```sh
 # Optional: If you use Docker Machine with NFS, you'll need to specify where project is, & give composer a valid directory.
 #export COMPOSE_DIR=/data/SOURCES/MYPROJECTS/ezplatform/doc/docker COMPOSER_HOME=/tmp
@@ -108,18 +111,19 @@ docker-compose up -d --force-recreate
 ```
 
 
-After some 5-10 seconds you should be able to browse the site on `localhost:8080` and the backend on `localhost:8080/admin`.
+After about 5-10 seconds you should be able to browse the site on `localhost:8080` and the backend on `localhost:8080/admin`.
 
 
-_TIP: If you are seeing 500 errors, or in the case of `SYMFONY_ENV=dev` Database exceptions, then make sure to comment out `database_*` params in `app/config/parameters.yml` to make sure env variables are used correctly._
+_TIP: If you are seeing 500 errors, or in the case of `SYMFONY_ENV=dev` database exceptions, then make sure to comment out `database_*` params in `app/config/parameters.yml` to make sure env variables are used correctly._
 
 ### Behat and Selenium use
 
-*Docker-Compose setup for Behat use is provided and used internally to test eZ Platform, this can be combined with most
-setups, here shown in combination with production setup which is what you'll typically need to test before pushing your
+*Docker Compose setup for Behat use is provided and used internally to test Ibexa DXP. It can be combined with most
+setups, here shown in combination with production setup which is what you typically need to test before pushing your
 image to Docker Hub/Registry.*
 
-From root of your projects clone of this distribution, [setup composer auth.json](#composer) and execute the following:
+From the root of your project's clone of this distribution, [set up composer auth.json](#composer) and execute the following:
+
 ```sh
 export COMPOSE_FILE=doc/docker/base-prod.yml:doc/docker/selenium.yml
 
@@ -130,18 +134,18 @@ docker-compose -f doc/docker/install-dependencies.yml -f doc/docker/install-data
 docker-compose up -d --force-recreate
 ```
 
-*Last step is to execute behat scenarios using `app` container which now has access to web and selenium containers, example:*
+The last step is to execute Behat scenarios using `app` container which now has access to web and Selenium containers, for example:
 ```
 docker-compose exec --user www-data app sh -c "php /scripts/wait_for_db.php; php bin/behat -vv --profile=rest --suite=fullJson --tags=~@broken"
 ```
 
 
-*Tip: You can typically re run the install command to get back to a clean installation in between behat runs using:*
+*Tip: You can typically re-run the installation command to get back to a clean installation between Behat runs by using:*
 ```
 docker-compose exec --user www-data app composer ezplatform-install
 ```
 
-Note: if you want to use the Chromium driver, use 
+Note: if you want to use the Chromium driver, use:
 ```
 export COMPOSE_FILE=doc/docker/base-prod.yml:doc/docker/chromium.yml
 ```
@@ -149,11 +153,11 @@ This driver is not fully supported in our test suite and is in experimental stat
 
 ### DFS
 
-If you want to use the DFS cluster handler, you'll need to run the migration script manually, after starting the
+If you want to use the DFS cluster handler, you need to run the migration script manually, after starting the
 containers ( run `docker-compose up -d --force-create` first).
 
-The migration script will copy the binary files in public/var to the nfs mount point ( ./dfsdata ) and add the files'
-metadata to the database. If your are going to run eZ Platform in a cluster you must then ensure ./dfsdata  is a mounted
+The migration script copies the binary files in public/var to the nfs mount point (`./dfsdata`) and adds the files'
+metadata to the database. If your are going to run Ibexa DXP in a cluster you must then ensure that `./dfsdata` is a mounted
 nfs share on every node/app container.
 
 ```
@@ -165,7 +169,7 @@ php app/console ezplatform:io:migrate-files --from=default,default --to=dfs,nfs 
 
 ```
 
-Once this is done, you may delete public/var/* if you don't intend to run the migration scripts ever again.
+Once this is done, you may delete `public/var/*` if you don't intend to run the migration scripts ever again.
 
 ### Production use
 
@@ -175,7 +179,7 @@ In this example we'll build a app image which includes both php (php_fpm) and th
 in a swarm cluster using docker stack.
 
 Prerequisite:
-- A running [swarm cluster](https://docs.docker.com/engine/swarm/swarm-tutorial/) ( a one-node cluster is sufficient for running this example )
+- A running [swarm cluster](https://docs.docker.com/engine/swarm/swarm-tutorial/) (a one-node cluster is sufficient for running this example)
 - A running NFS server. How to configure a nfs server is distro dependent, but this [ubuntu guide](https://help.ubuntu.com/community/NFSv4Howto) might be of help
 - A running [docker registry](https://docs.docker.com/registry/deploying/#managing-with-compose) (Only required if your swarm cluster has more than one node)
 
@@ -234,10 +238,10 @@ docker volume rm stack-db_mysql
 
 #### Example: Separating app and php
 
-In this alternative way of running eZ Platform, the eZ Platform code and PHP executables are separated in two different
-images. The upside of this is that it gets easier to upgrade PHP ( or any other distro applications ) independently
-of eZ Platform; simply just replace the PHP container with an updated one without having to rebuild the eZ Platform
-image. The downside of this approach is that all eZ Platform code is copied to a volume so that it can be shared with
+In this alternative way of running Ibexa DXP, the Ibexa DXP code and PHP executables are separated in two different
+images. The upside of this is that it gets easier to upgrade PHP (or any other distro applications) independently
+of Ibexa DXP. To do it, replace the PHP container with an updated one without having to rebuild the Ibexa DXP
+image. The downside of this approach is that all Ibexa DXP code is copied to a volume so that it can be shared with
 other containers. This means bigger disk space footprint and longer loading time of the containers.
 It is also more complicated to make this approach work with docker stack so only a docker-compose example is provided.
 
@@ -266,17 +270,15 @@ docker-compose up -d
 
 ### <a name="composer"></a>Configuring Composer
 
-For composer to run correctly as part of the build process, you'll need to create a `auth.json` file in your project root with your github readonly token:
+For Composer to run correctly as part of the build process, you need to create a `auth.json` file in your project root with your GitHub readonly token:
 
 ```sh
 echo "{\"github-oauth\":{\"github.com\":\"<readonly-github-token>\"}}" > auth.json
-# If you use Ibexa Content,Experiece or Commerce also include your updates.ez.no auth token
-echo "{\"github-oauth\":{\"github.com\":\"<readonly-github-token>\"},\"http-basic\":{\"updates.ez.no\": {\"username\":\"<installation-key>\",\"password\":\"<token-pasword>\",}}}" > auth.json
+# If you use Ibexa Content,Experiece or Commerce also include your updates.ibexa.co auth token
+echo "{\"github-oauth\":{\"github.com\":\"<readonly-github-token>\"},\"http-basic\":{\"updates.ibexa.co\": {\"username\":\"<installation-key>\",\"password\":\"<token-pasword>\",}}}" > auth.json
 ```
 
-For further information on tokens for updates.ez.no, see [doc.ez.no](https://doc.ez.no/display/DEVELOPER/Using+Composer).
-
-
+For further information on tokens for updates.ibexa.co, see [the installation guide](https://doc.ibexa.co/en/latest/install/#set-up-authentication-tokens).
 
 ### Debugging
 
@@ -298,7 +300,7 @@ docker-compose ps
 
 ### Database dumps
 
-Database dump is placed in `doc/docker/entrypoint/mysql/`, this folder is used my mysql/mariadb which will execute
+Database dump is placed in `doc/docker/entrypoint/mysql/`. This folder is used my mysql/mariadb which executes
 everything inside the folder. This means there should only be data represent one install in the folder at any given time.
 
 
@@ -330,9 +332,11 @@ unset BLACKFIRE_SERVER_ID BLACKFIRE_SERVER_TOKEN
 ```
 
 ## COPYRIGHT
+
 Copyright (C) 1999-2021 Ibexa AS (formerly eZ Systems AS). All rights reserved.
 
 ## LICENSE
+
 This source code is available separately under the following licenses:
 
 A - Ibexa Business Use License Agreement (Ibexa BUL),
