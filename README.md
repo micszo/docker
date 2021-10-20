@@ -114,7 +114,7 @@ docker-compose up -d --force-recreate
 After about 5-10 seconds you should be able to browse the site on `localhost:8080` and the backend on `localhost:8080/admin`.
 
 
-_TIP: If you are seeing 500 errors, or in the case of `SYMFONY_ENV=dev` database exceptions, then make sure to comment out `database_*` params in `app/config/parameters.yml` to make sure env variables are used correctly._
+_TIP: If you are seeing 500 errors, or in the case of `APP_ENV=dev` database exceptions, then make sure to comment out `database_*` params in `app/config/parameters.yml` to make sure env variables are used correctly._
 
 ### Behat and Selenium use
 
@@ -142,7 +142,7 @@ docker-compose exec --user www-data app sh -c "php /scripts/wait_for_db.php; php
 
 *Tip: You can typically re-run the installation command to get back to a clean installation between Behat runs by using:*
 ```
-docker-compose exec --user www-data app composer ezplatform-install
+docker-compose exec --user www-data app php bin/console ibexa:install
 ```
 
 Note: if you want to use the Chromium driver, use:
