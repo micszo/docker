@@ -91,7 +91,7 @@ After about 5-10 seconds you should be able to browse the site on `localhost:808
 
 ### Development "mount" use
 
-Whe you use this approach, your project directory is bind-mounted into the Nginx and PGP containers.
+When you use this approach, your project directory is bind-mounted into the Nginx and PGP containers.
 If you change a PHP file in, for instance `src`, that change is applied in automatically.
 
 Warning: *Dev setup works a lot faster on Linux then on Windows/Mac where Docker uses virtual machines with shared folders
